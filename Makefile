@@ -1,6 +1,6 @@
 EXEC_NAME := http_proxy
-CC = clang-15
-CXX = clang++-15
+CC ?= clang
+CXX ?= clang++
 UWS_PATH=./src/deps/uWebSockets
 USOCKETS_PATH=$(UWS_PATH)/uSockets
 ARCH := amd64
@@ -35,3 +35,39 @@ linux:
 	$(MAKE) usockets
 	
 	$(MAKE) linux-exec
+
+macos-exec:
+	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I ./src -I $(UWS_PATH)/src -I $(USOCKETS_PATH)/src -I -DLIBUS_USE_OPENSSL -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -c -O3 ./src/*.cpp 
+	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 *.o $(USOCKETS_PATH)/usockets_macos_$(ARCH).a -lssl -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
+
+usockets-macos:
+	cd $(USOCKETS_PATH) && $(CC) -mmacosx-version-min=10.14 -I ./src -DLIBUS_USE_OPENSSL -lssl -lcrypto -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
+	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I -DLIBUS_USE_OPENSSL -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
+	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_$(ARCH).a *.o
+
+macos:
+# requires libssl-dev
+	$(MAKE) clean
+
+	$(MAKE) usockets-macos
+	
+	$(MAKE) macos-exec
+
+
+macos-exec-arm64:
+	$(CXX) -stdlib=libc++ -target arm64-apple-macos11 -I ./src -I $(UWS_PATH)/src -I $(USOCKETS_PATH)/src -I -DLIBUS_USE_OPENSSL -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -c -O3 ./src/*.cpp 
+	$(CXX) -stdlib=libc++ -target arm64-apple-macos11 *.o $(USOCKETS_PATH)/usockets_macos_arm64.a -lssl -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
+
+usockets-macos-arm64:
+	cd $(USOCKETS_PATH) && $(CC) -target arm64-apple-macos11 -I ./src -DLIBUS_USE_OPENSSL -lssl -lcrypto -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
+	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -target arm64-apple-macos11 -I -DLIBUS_USE_OPENSSL -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
+	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_arm64.a *.o
+
+macos-arm64:
+# requires libssl-dev
+	$(MAKE) clean
+
+	$(MAKE) usockets-macos-arm64
+	
+	$(MAKE) macos-exec-arm64
+
