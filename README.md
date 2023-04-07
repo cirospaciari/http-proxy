@@ -4,6 +4,11 @@ Basic HTTP Proxy using custom [uWS](https://github.com/uNetworking/uWebSockets) 
 ## 📦 Installation
 Binaries for macOS x64 & Silicon, Linux x64 on [bin](https://github.com/cirospaciari/http-proxy/tree/main/bin) folder
 
+Dependencies
+```bash
+apt install libssl # or brew install openssl
+apt install zlib1g # or brew install zlib
+```
 
 ## 🤔 Usage
 ```bash
@@ -15,7 +20,11 @@ Binaries for macOS x64 & Silicon, Linux x64 on [bin](https://github.com/cirospac
 
 ## :hammer: Building from source
 ```bash
-#clone and update submodules
+# install dependencies
+apt install libssl-dev # or brew install openssl
+apt install zlib1g-dev # or brew install zlib
+
+# clone and update submodules
 git clone https://github.com/cirospaciari/http-proxy.git
 git submodule update --init --recursive --remote
 # build with make
