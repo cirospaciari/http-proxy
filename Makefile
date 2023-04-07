@@ -43,7 +43,7 @@ macos-exec:
 usockets-macos:
 	cd $(USOCKETS_PATH) && $(CC) -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
 	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
-	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_$(ARCH).a *.o
+	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_$(ARCH).a *.o -L/usr/local/opt/openssl/lib
 
 macos:
 # requires libssl-dev
@@ -61,7 +61,7 @@ macos-exec-arm64:
 usockets-macos-arm64:
 	cd $(USOCKETS_PATH) && $(CC) -target arm64-apple-macos11 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
 	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -target arm64-apple-macos11 -I/usr/local/opt/openssl/include -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
-	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_arm64.a *.o
+	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_arm64.a *.o -L/usr/local/opt/openssl/lib
 
 macos-arm64:
 # requires libssl-dev
