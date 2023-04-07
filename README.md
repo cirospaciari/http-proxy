@@ -24,6 +24,10 @@ apt install zlib1g # or brew install zlib
 apt install libssl-dev # or brew install openssl
 apt install zlib1g-dev # or brew install zlib
 
+# on macOS you may need
+# ln -s /usr/local/opt/openssl/lib/libssl.dylib libssl.dylib
+# ln -s /usr/local/opt/openssl/lib/libcrypto.dylib libcrypto.dylib
+
 # clone and update submodules
 git clone https://github.com/cirospaciari/http-proxy.git
 git submodule update --init --recursive --remote
