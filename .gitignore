@@ -1,0 +1,8 @@
+*.o 
+*.a 
+*.so 
+*.dll 
+*.obj 
+*.lib
+*.exe
+http_proxy

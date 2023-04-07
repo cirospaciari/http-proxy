@@ -1,0 +1,19 @@
+name: macOS Build
+on: workflow_dispatch
+jobs:
+ build-macos:
+    runs-on: macos-11.0
+    name: Build on darwin-amd64
+    steps:
+      - name: Update binaries
+        run: |
+          brew install openssl
+          git clone --recursive https://github.com/cirospaciari/http-proxy.git
+          make macos
+          mkdir -p bin/macos
+          mv http_proxy bin/macos/http_proxy
+          git add bin/macos/http_proxy
+          git config --global user.email "ciro.spaciari@gmail.com"
+          git config --global user.name "Ciro Spaciari"
+          git commit -m "[GitHub Actions] Updated darwin-amd64" || true
+          git push "https://cirospaciari:${{ secrets.BUILDTOKEN }}@github.com/cirospaciari/http-proxy.git"

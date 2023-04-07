@@ -1,0 +1,7 @@
+[submodule "src/deps/uWebSockets"]
+	path = src/deps/uWebSockets
+	url = https://github.com/cirospaciari/uWebSockets
+	depth = 1
+	ignore = dirty
+	shallow = true
+	branch = http-proxy

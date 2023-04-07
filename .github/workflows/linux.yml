@@ -1,0 +1,20 @@
+name: Linux Build
+on: workflow_dispatch
+jobs:
+ build-linux:
+    runs-on: ubuntu-20.04
+    name: Build on linux-amd64
+    steps:
+      - name: Update binaries
+        run: |
+          sudo apt update || true
+          sudo apt install -y libssl-dev || true
+          git clone --recursive https://github.com/cirospaciari/http-proxy.git
+          make linux
+          mkdir -p bin/linux
+          mv http_proxy bin/linux/http_proxy
+          git add bin/linux/http_proxy
+          git config --global user.email "ciro.spaciari@gmail.com"
+          git config --global user.name "Ciro Spaciari"
+          git commit -m "[GitHub Actions] Updated linux-amd64 binaries" || true
+          git push "https://cirospaciari:${{ secrets.BUILDTOKEN }}@github.com/cirospaciari/http-proxy.git"
