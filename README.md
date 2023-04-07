@@ -2,7 +2,7 @@
 Basic HTTP Proxy using custom [uWS](https://github.com/uNetworking/uWebSockets) for testing
 
 ## 📦 Installation
-Binaries for macOS x64 & Silicon, Linux x64 on [bin](https://github.com/cirospaciari/http-proxy/tree/main/bin) folder
+Binaries for macOS x64, Linux x64 on [bin](https://github.com/cirospaciari/http-proxy/tree/main/bin) folder
 
 Dependencies
 ```bash
