@@ -38,7 +38,7 @@ linux:
 
 macos-exec:
 	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -I $(UWS_PATH)/src -I $(USOCKETS_PATH)/src -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -c -O3 ./src/*.cpp 
-	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 *.o $(USOCKETS_PATH)/usockets_macos_$(ARCH).a -lssl -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
+	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 *.o $(USOCKETS_PATH)/usockets_macos_$(ARCH).a -L/usr/local/opt/openssl/lib -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
 
 usockets-macos:
 	cd $(USOCKETS_PATH) && $(CC) -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lcrypto -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
