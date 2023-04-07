@@ -10,6 +10,7 @@ jobs:
           sudo apt update || true
           sudo apt install -y libssl-dev || true
           git clone --recursive https://github.com/cirospaciari/http-proxy.git
+          cd ./http-proxy
           make linux
           mkdir -p bin/linux
           mv http_proxy bin/linux/http_proxy
