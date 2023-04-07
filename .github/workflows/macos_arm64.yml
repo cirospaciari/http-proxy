@@ -8,7 +8,15 @@ jobs:
       - name: Update binaries
         run: |
           brew install autoconf automake libtool cmake
-          brew install openssl
+          wget https://www.openssl.org/source/openssl-1.1.1.tar.gz
+          tar -xvzf openssl-1.1.1.tar.gz
+          cd openssl-1.1.1/
+          ./Configure darwin64-arm64-cc --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+          make -j$(($(nproc)+1))
+          sudo make install
+          sudo echo 'LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH}' >> /etc/environment
+          rm openssl-1.1.1.tar.gz
+          sudo rm openssl-1.1.1 -r
           git clone --recursive https://github.com/cirospaciari/http-proxy.git
           cd ./http-proxy
           make macos-arm64
