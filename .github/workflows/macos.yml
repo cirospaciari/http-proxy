@@ -9,8 +9,8 @@ jobs:
         run: |
           brew update    
           brew install openssl    
-          ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/    
-          ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/
+          ln -s /usr/local/opt/openssl/lib/libssl.dylib libssl.dylib
+          ln -s /usr/local/opt/openssl/lib/libcrypto.dylib libcrypto.dylib
           git clone --recursive https://github.com/cirospaciari/http-proxy.git
           cd ./http-proxy
           make macos
