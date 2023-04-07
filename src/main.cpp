@@ -409,6 +409,7 @@ private:
 	std::string key;
 	std::string passphrase;
 	int port;
+	bool logs;
 	uWS::TemplatedApp<T> *app;
 
 	bool isAuthenticated(uWS::HttpResponse<T> *res, uWS::HttpRequest *req)
@@ -475,7 +476,17 @@ private:
 		struct us_socket_t *socket = us_socket_context_connect(0, context, hostname, port, NULL, 0, sizeof(struct HttpProxyData<T>));
 		if (!socket)
 		{
-			return res->writeStatus("500 Internal Server Error")->endWithoutBody();
+			if (this->logs) {
+				std::cout << "[CONNECT-FAILURE] " << hostname << ":" << port << std::endl;
+			}
+
+			res->cork([&res](){
+				return res->writeStatus("500 Internal Server Error")->endWithoutBody();
+			});
+		}
+
+		if (this->logs) {
+			std::cout << "[CONNECT] " << hostname << ":" << port << std::endl;
 		}
 
 		// set socket extension
@@ -530,11 +541,20 @@ private:
 		struct us_socket_t *socket = us_socket_context_connect(0, context, _hostname, port, NULL, 0, sizeof(struct HttpProxyData<T>));
 		if (!socket)
 		{
+			if (this->logs) {
+				std::cout << "[PROXY-FAILURE] " << method << _hostname << ":" << port << path << std::endl;
+			}
+
 			res->cork([&res](){
 				res->writeStatus("500 Internal Server Error")->endWithoutBody();
 			});
 			return;
 		}
+		
+		if (this->logs) {
+			std::cout << "[PROXY] " << method << " " << _hostname << ":" << port << path << std::endl;
+		}
+
 		// set socket extension
 		auto *ext = (struct HttpProxyData<T> *)us_socket_ext(0, socket);
 		memset(ext, 0, sizeof(struct HttpProxyData<T>));
@@ -608,7 +628,7 @@ private:
 	}
 
 public:
-	ProxyServer(std::string expected_auth, std::string host, int port, std::string cert, std::string key, std::string passphrase) : expected_auth(expected_auth), host(host), port(port), cert(cert), key(key), passphrase(passphrase)
+	ProxyServer(std::string expected_auth, std::string host, int port, std::string cert, std::string key, std::string passphrase, bool logs) : expected_auth(expected_auth), host(host), port(port), cert(cert), key(key), passphrase(passphrase), logs(logs)
 	{
 		app = new uWS::TemplatedApp<T>({
 			.key_file_name = key.data(),
@@ -618,13 +638,13 @@ public:
 		app->connect("/*", [this](auto *res, auto *req) { this->connect(res, req); });
 		app->any("/*", [this](auto *res, auto *req) { this->proxyRequest(res, req); });
 
-		app->listen(host, port, [this](auto *listen_socket)
+		app->listen(host, port, [&host, this](auto *listen_socket)
 					{
 			if (listen_socket) {
 				this->port = us_socket_local_port(T, (struct us_socket_t*)listen_socket);
-				std::cout << "Listening on port " << this->port << std::endl;
+				std::cout << "[LISTEN] " << host << ":" << this->port << std::endl;
 			}  else {
-				std::cout << "Failed to listen on port " << this->port << std::endl;
+				std::cout << "[LISTEN-FAILURE] " << host << ":" << this->port << std::endl;
 			} });
 	}
 
@@ -640,9 +660,10 @@ public:
 };
 
 int main(int argc, char *argv[]) { 
-	// parse --cert --key --port --host --auth --passphrase from argv
+	// parse --cert --key --port --host --auth --passphrase --logs from argv
 	// if --cert and --key are present, run ProxyServer<true>
 	std::string cert = "", key = "", host = "0.0.0.0", auth = "", passphrase = "";
+	bool logs = false;
 	int port = 8080;
 
 	for (int i = 1; i < argc; i++) {
@@ -658,6 +679,8 @@ int main(int argc, char *argv[]) {
 			auth = argv[++i];
 		} else if (std::string(argv[i]) == "--passphrase" && i + 1 < argc) {
 			auth = argv[++i];
+		}else if (std::string(argv[i]) == "--logs") {
+			logs = true;
 		}
 	}
 
@@ -666,12 +689,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (!cert.empty() && !key.empty()) {
-		ProxyServer<true> proxy(auth, host, port, cert, key, passphrase);
+		ProxyServer<true> proxy(auth, host, port, cert, key, passphrase, logs);
 		proxy.run();
 		return 0;
 	}
 	
-	ProxyServer<false> proxy(auth, host, port, cert, key, passphrase);
+	ProxyServer<false> proxy(auth, host, port, cert, key, passphrase, logs);
 	proxy.run();
 	return 0;
 }
