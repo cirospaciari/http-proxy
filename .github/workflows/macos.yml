@@ -8,7 +8,6 @@ jobs:
       - name: Update binaries
         run: |
           brew update    
-          brew uninstall --ignore-dependencies --force openssl
           brew install openssl
           git clone --recursive https://github.com/cirospaciari/http-proxy.git
           cd ./http-proxy
