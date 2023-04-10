@@ -38,11 +38,11 @@ linux:
 
 macos-exec:
 	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -I $(UWS_PATH)/src -I $(USOCKETS_PATH)/src -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -c -O3 ./src/*.cpp 
-	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 *.o $(USOCKETS_PATH)/usockets_macos_$(ARCH).a -L/usr/local/opt/openssl/lib -lssl -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
+	$(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 *.o $(USOCKETS_PATH)/usockets_macos_$(ARCH).a $(USOCKETS_PATH)/boringssl/arm64/ssl/libssl.a $(USOCKETS_PATH)/boringssl/arm64/crypto/libcrypto.a -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
 
 usockets-macos:
-	cd $(USOCKETS_PATH) && $(CC) -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lssl -lcrypto -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
-	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
+	cd $(USOCKETS_PATH) && $(CC) -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
+	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -mmacosx-version-min=10.14 -I/usr/local/opt/openssl/include -I -DLIBUS_USE_OPENSSL -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
 	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_$(ARCH).a *.o
 
 macos:
@@ -59,8 +59,10 @@ macos-exec-arm64:
 	$(CXX) -stdlib=libc++ -target arm64-apple-macos11 *.o $(USOCKETS_PATH)/usockets_macos_arm64.a -L/usr/local/opt/openssl/lib -lssl -lcrypto -lstdc++ -pthread -fPIC -lz -std=c++17 -o $(EXEC_NAME)
 
 usockets-macos-arm64:
-	cd $(USOCKETS_PATH) && $(CC) -target arm64-apple-macos11 -I/usr/local/opt/openssl/include -I ./src -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lssl -lcrypto -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
-	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -target arm64-apple-macos11 -I/usr/local/opt/openssl/include -I -DLIBUS_USE_OPENSSL -L/usr/local/opt/openssl/lib -lssl -lcrypto -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
+       # build boringssl for arm64 (cross compile)
+	cd $(USOCKETS_PATH)/boringssl && mkdir -p arm64 && cd arm64 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 .. && make crypto ssl
+	cd $(USOCKETS_PATH) && $(CC) -target arm64-apple-macos11 -I boringssl/include -I ./src -DLIBUS_USE_OPENSSL -pthread -fPIC -std=c11 -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
+	cd $(USOCKETS_PATH) && $(CXX) -stdlib=libc++ -target arm64-apple-macos11 -I boringssl/include -I -DLIBUS_USE_OPENSSL -lstdc++ -pthread -fPIC -std=c++17 -O3 -c src/crypto/*.cpp
 	cd $(USOCKETS_PATH) && $(AR) rvs usockets_macos_arm64.a *.o
 
 macos-arm64:
