@@ -11,7 +11,7 @@ jobs:
           git clone --recursive https://github.com/cirospaciari/http-proxy.git
           cd ./http-proxy
           MACOSX_DEPLOYMENT_TARGET=11.0 make macos-arm64
-          mkdir -p bin/macos
+          mkdir -p bin/macos-arm64
           mv http_proxy bin/macos-arm64/http_proxy
           git add bin/macos-arm64/http_proxy
           git config --global user.email "ciro.spaciari@gmail.com"
